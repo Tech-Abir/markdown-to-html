@@ -1,0 +1,107 @@
+index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Markdown Preview</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Highlight.js style (optional but improves readability) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css">
+  <style>
+    :root {
+      color-scheme: light dark;
+    }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      line-height: 1.5;
+      background: Canvas;
+      color: CanvasText;
+    }
+    header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid color-mix(in oklab, CanvasText 12%, transparent);
+      background: color-mix(in oklab, Canvas 96%, CanvasText 4%);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 1rem 1.25rem 4rem;
+    }
+    #markdown-output {
+      overflow-wrap: anywhere;
+    }
+    #markdown-output pre {
+      background: color-mix(in oklab, Canvas 92%, CanvasText 8%);
+      padding: 0.8rem 1rem;
+      border-radius: 8px;
+      overflow: auto;
+    }
+    #markdown-output code:not(pre code) {
+      background: color-mix(in oklab, Canvas 94%, CanvasText 6%);
+      padding: 0.15rem 0.35rem;
+      border-radius: 4px;
+      font-size: 0.95em;
+    }
+    a { color: #2a6df4; }
+    img { max-width: 100%; height: auto; }
+    blockquote {
+      margin: 0;
+      padding-left: 1rem;
+      border-left: 4px solid color-mix(in oklab, CanvasText 20%, transparent);
+      color: color-mix(in oklab, CanvasText 82%, Canvas 18%);
+    }
+    table { border-collapse: collapse; }
+    th, td { border: 1px solid color-mix(in oklab, CanvasText 20%, transparent); padding: 0.5rem 0.6rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>Markdown Preview (input.md)</strong>
+  </header>
+  <main>
+    <div id="markdown-output">Loading markdown…</div>
+  </main>
+
+  <!-- Marked (Markdown to HTML) -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- Highlight.js (syntax highlighting) -->
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.js"></script>
+
+  <script>
+    (async function renderMarkdown() {
+      const container = document.getElementById('markdown-output');
+
+      // Configure Marked
+      marked.setOptions({
+        mangle: false,
+        headerIds: true
+      });
+
+      try {
+        const res = await fetch('input.md', { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status + ' while fetching input.md');
+        const md = await res.text();
+
+        if (!md || md.trim().length === 0) {
+          container.innerHTML = '<h2>input.md is empty</h2><p>Add some markdown content to input.md and reload this page.</p>';
+          return;
+        }
+
+        const html = marked.parse(md);
+        container.innerHTML = html;
+
+        // Apply syntax highlighting
+        if (window.hljs) {
+          container.querySelectorAll('pre code').forEach(block => hljs.highlightElement(block));
+        }
+      } catch (err) {
+        container.innerHTML = '<h2>Failed to load input.md</h2><pre style="white-space:pre-wrap;">' + String(err) + '</pre>';
+      }
+    })();
+  </script>
+</body>
+</html>
