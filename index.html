@@ -91,7 +91,7 @@ index.html
     async function renderMarkdown() {
       const el = document.getElementById('markdown-output');
       try {
-        const res = await fetch('input.md', { cache: 'no-store' });
+        const res = await fetch('./attachments/input.md', { cache: 'no-store' });
         if (!res.ok) throw new Error('Failed to load input.md (' + res.status + ')');
         const md = await res.text();
 
