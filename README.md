@@ -1,21 +1,23 @@
-# Overview
-This is a minimal static web app that:
-- Loads input.md from the same directory.
-- Converts the Markdown to HTML using Marked.
-- Renders the result inside the element with id "markdown-output".
-- Applies syntax highlighting to code blocks using Highlight.js.
+# README
 
-# Setup
-1. Place index.html and input.md in the same directory.
-2. Ensure you have an input.md file. If it is empty or missing, the page will display a helpful message.
-3. No build steps required; dependencies are loaded from CDNs:
-   - Marked via jsDelivr
-   - Highlight.js via jsDelivr (with a default GitHub-like theme)
+## Overview
+This is a minimal static web page that:
+- Loads `input.md` (provided alongside the page) via fetch.
+- Converts the Markdown content to HTML using the marked library.
+- Injects the rendered HTML into the element with id `#markdown-output`.
+- Loads highlight.js and applies syntax highlighting to code blocks.
 
-# Usage
-- Open index.html in a modern web browser.
-- Edit input.md and reload the page to see updates.
-- Code blocks in the Markdown will be highlighted automatically.
+## Setup
+- Place `index.html` and `input.md` in the same directory on any static web server or local filesystem.
+- No build step is required. All dependencies are loaded from CDNs:
+  - marked: https://cdn.jsdelivr.net/npm/marked/marked.min.js
+  - highlight.js (common languages) + GitHub theme CSS
+
+## Usage
+1. Open `index.html` in a browser.
+2. The page will fetch `input.md`, convert it to HTML, and display it under “Rendering the contents of input.md below:”.
+3. Code blocks within the Markdown will be syntax highlighted automatically.
 
 Notes:
-- The app fetches input.md with cache disabled to better reflect recent changes during development.
+- If `input.md` cannot be loaded (e.g., file missing or server disallows fetch), the page will render a small fallback message and example code block.
+- To update the content, edit `input.md` and refresh the page.
