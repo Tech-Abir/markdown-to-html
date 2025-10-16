@@ -1,79 +1,114 @@
 index.html
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Markdown to HTML Demo</title>
+  <title>Markdown-to-HTML Demo</title>
+
+  <!-- Highlight.js theme -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+
   <style>
     :root {
       color-scheme: light dark;
     }
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
       line-height: 1.6;
-      padding: 2rem;
+      background: Canvas;
+      color: CanvasText;
     }
-    #markdown-output {
-      max-width: 900px;
+    header {
+      padding: 16px 20px;
+      border-bottom: 1px solid color-mix(in oklab, CanvasText 15%, transparent);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    header .meta {
+      font-size: .9rem;
+      opacity: .75;
+    }
+    main {
+      max-width: 860px;
       margin: 0 auto;
+      padding: 24px 18px 64px;
+    }
+    #markdown-output :is(h1,h2,h3,h4,h5,h6) {
+      scroll-margin-top: 80px;
     }
     pre {
-      padding: 1rem;
       overflow: auto;
+      padding: 12px;
       border-radius: 8px;
+      background: color-mix(in oklab, CanvasText 6%, Canvas);
+      border: 1px solid color-mix(in oklab, CanvasText 10%, transparent);
     }
     code {
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: .95em;
+    }
+    .muted {
+      opacity: .7;
+    }
+    .error {
+      color: #b00020;
     }
   </style>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" integrity="sha512-T0n8bYvPX5W4+Z1mQQ2F3e3O1kAqN2xeN4M6o4jHj3y8VnD1o4x/Pr+4+e6p8mG2Mqf0r3U3K6N3yW0QvGno2w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
-  <main id="app">
-    <div id="markdown-output">Loading Markdown...</div>
+  <header>
+    <h1>Markdown-to-HTML</h1>
+    <div class="meta">Source: <span class="muted">input.md</span></div>
+  </header>
+
+  <main>
+    <div id="markdown-output">Loading markdown…</div>
   </main>
 
-  <!-- Marked.js for Markdown parsing -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
+  <!-- Marked (Markdown parser) -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- Highlight.js (syntax highlighting) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 
-  <!-- Highlight.js for code syntax highlighting -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-2M3gZK2mU2lNf3b2zFf1T2M0h8jQ6FqL9Y0r8zS2s3J2l1iD8Qd5Qp8d3t9CwUjG9Qy6i7TtqjXq3p3yQ9vS2A==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
+  <script>
+    // Configure Marked (basic GFM-style features)
+    marked.setOptions({
+      gfm: true,
+      breaks: false,
+      headerIds: true,
+      mangle: false
+    });
 
-  <script defer>
-    (function () {
-      async function loadAndRenderMarkdown() {
-        const container = document.getElementById('markdown-output');
-        try {
-          const res = await fetch('input.md', { cache: 'no-cache' });
-          if (!res.ok) throw new Error('Failed to load input.md');
-          const mdText = await res.text();
+    async function renderMarkdown() {
+      const el = document.getElementById('markdown-output');
+      try {
+        const res = await fetch('input.md', { cache: 'no-store' });
+        if (!res.ok) throw new Error('Failed to load input.md (' + res.status + ')');
+        const md = await res.text();
 
-          // Parse Markdown to HTML with Marked
-          const html = window.marked.parse(mdText);
+        const html = marked.parse(md);
+        el.innerHTML = html;
 
-          // Inject into DOM
-          container.innerHTML = html;
-
-          // Apply syntax highlighting
-          if (window.hljs) {
-            document.querySelectorAll('#markdown-output pre code').forEach(block => {
-              window.hljs.highlightElement(block);
-            });
-          }
-        } catch (err) {
-          console.error(err);
-          container.textContent = 'Error loading Markdown file. Make sure input.md is available.';
+        // Highlight code blocks after injection
+        if (window.hljs) {
+          hljs.highlightAll();
         }
+      } catch (err) {
+        console.error(err);
+        el.innerHTML = '<p class="error">Error loading markdown: ' + (err.message || err) + '</p>';
       }
+    }
 
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', loadAndRenderMarkdown);
-      } else {
-        loadAndRenderMarkdown();
-      }
-    })();
+    document.addEventListener('DOMContentLoaded', renderMarkdown);
   </script>
 </body>
 </html>
